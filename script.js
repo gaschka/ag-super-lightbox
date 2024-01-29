@@ -1,5 +1,6 @@
 // script.js
 
+
 function displayLightbox() {
     const lightbox = document.getElementById('lightbox');
     lightbox.style.display = 'flex'; // Show the lightbox container
@@ -10,19 +11,26 @@ function openLightbox(fullSizeImgSrc) {
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
 
-    // Clear any previous source to ensure the load event fires
+    // Set initial scale right away
+    lightboxImg.style.transform = 'scale(1.6)'; // Adjust this scale as needed
+
     lightboxImg.src = '';
 
-    // Add a load event listener to the image
     lightboxImg.onload = function() {
-        // Once the image is loaded, display the lightbox
+        // Delay panning to ensure the image is rendered
+        setTimeout(() => {
+            panImage(currentMouseX, currentMouseY, lightboxImg);
+        }, 1); // Delay of 100ms, adjust as needed
+    
         lightbox.style.display = 'flex';
         setupPanningAndZooming();
     };
+    
 
     // Set the source for the image, which triggers the load event
     lightboxImg.src = fullSizeImgSrc;
 }
+
 
 function closeLightbox() {
     const lightbox = document.getElementById('lightbox');
@@ -35,32 +43,26 @@ function closeLightbox() {
     lightbox.addEventListener('animationend', function() {
         lightbox.style.display = 'none';
         lightbox.classList.remove('lightbox-closing'); // Remove the class for next time
+
+        // Reset the position and scale of the image
+        lightboxImg.style.transformOrigin = '50% 50%';
+        lightboxImg.style.transform = 'scale(1.6)';
     }, { once: true });
 }
 
-// Global variables for current position
-let currentPosX = 50;
-let currentPosY = 50;
 
 function panImage(x, y, img) {
     const rect = img.getBoundingClientRect();
-    currentPosX = (x - rect.left) / rect.width * 100;
-    currentPosY = (y - rect.top) / rect.height * 100;
+    const posX = ((x - rect.left) / rect.width) * 100;
+    const posY = ((y - rect.top) / rect.height) * 100;
 
-    // Update the transform-origin property directly
-    img.style.transformOrigin = `${currentPosX}% ${currentPosY}%`;
+    // Update the transform-origin property based on the mouse position
+    img.style.transformOrigin = `${posX}% ${posY}%`;
 }
 
 function setupPanningAndZooming() {
     const img = document.getElementById('lightbox-img');
-    currentPosX = 50;
-    currentPosY = 50;
-    img.style.transformOrigin = '50% 50%';
 
-    // Zoom in the image
-    img.style.transform = 'scale(1.6)'; // Adjust scale as needed
-
-    // Pan the image on mouse move
     img.onmousemove = function(event) {
         panImage(event.clientX, event.clientY, img);
     };
@@ -75,3 +77,10 @@ function setupPanningAndZooming() {
     };
 }
 
+let currentMouseX = 0;
+let currentMouseY = 0;
+
+document.onmousemove = function(event) {
+    currentMouseX = event.clientX;
+    currentMouseY = event.clientY;
+};
