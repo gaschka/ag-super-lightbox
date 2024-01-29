@@ -38,37 +38,17 @@ function closeLightbox() {
     }, { once: true });
 }
 
-// Global variables for current and target positions    
+// Global variables for current position
 let currentPosX = 50;
 let currentPosY = 50;
-let targetPosX = 50;
-let targetPosY = 50;
 
 function panImage(x, y, img) {
     const rect = img.getBoundingClientRect();
-    targetPosX = (x - rect.left) / rect.width * 100;
-    targetPosY = (y - rect.top) / rect.height * 100;
+    currentPosX = (x - rect.left) / rect.width * 100;
+    currentPosY = (y - rect.top) / rect.height * 100;
 
-    // Call the function to smoothly update the position
-    smoothUpdate(img);
-}
-
-function smoothUpdate(img) {
-    // Calculate the difference between current and target positions
-    const deltaX = targetPosX - currentPosX;
-    const deltaY = targetPosY - currentPosY;
-
-    // If the difference is significant, update the position
-    if (Math.abs(deltaX) > 0.1 || Math.abs(deltaY) > 0.1) {
-        currentPosX += deltaX * 0.1; // Adjust the 0.1 for faster or slower transitions
-        currentPosY += deltaY * 0.1;
-
-        // Update the transform-origin property
-        img.style.transformOrigin = `${currentPosX}% ${currentPosY}%`;
-
-        // Continue the smooth update on the next animation frame
-        requestAnimationFrame(() => smoothUpdate(img));
-    }
+    // Update the transform-origin property directly
+    img.style.transformOrigin = `${currentPosX}% ${currentPosY}%`;
 }
 
 function setupPanningAndZooming() {
