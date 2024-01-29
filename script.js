@@ -24,8 +24,6 @@ function openLightbox(fullSizeImgSrc) {
     lightboxImg.src = fullSizeImgSrc;
 }
 
-
-
 function closeLightbox() {
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
@@ -40,9 +38,46 @@ function closeLightbox() {
     }, { once: true });
 }
 
+// Global variables for current and target positions
+let currentPosX = 50;
+let currentPosY = 50;
+let targetPosX = 50;
+let targetPosY = 50;
+
+function panImage(x, y, img) {
+    const rect = img.getBoundingClientRect();
+    targetPosX = (x - rect.left) / rect.width * 100;
+    targetPosY = (y - rect.top) / rect.height * 100;
+
+    // Call the function to smoothly update the position
+    smoothUpdate(img);
+}
+
+function smoothUpdate(img) {
+    // Calculate the difference between current and target positions
+    const deltaX = targetPosX - currentPosX;
+    const deltaY = targetPosY - currentPosY;
+
+    // If the difference is significant, update the position
+    if (Math.abs(deltaX) > 0.1 || Math.abs(deltaY) > 0.1) {
+        currentPosX += deltaX * 0.1; // Adjust the 0.1 for faster or slower transitions
+        currentPosY += deltaY * 0.1;
+
+        // Update the transform-origin property
+        img.style.transformOrigin = `${currentPosX}% ${currentPosY}%`;
+
+        // Continue the smooth update on the next animation frame
+        requestAnimationFrame(() => smoothUpdate(img));
+    }
+}
+
 
 function setupPanningAndZooming() {
     const img = document.getElementById('lightbox-img');
+    currentPosX = 50;
+    currentPosY = 50;
+    img.style.transformOrigin = '50% 50%';
+
     // Zoom in the image
     img.style.transform = 'scale(2)'; // Adjust scale as needed
 
@@ -53,7 +88,6 @@ function setupPanningAndZooming() {
 
     // Pan the image on touch move
     img.ontouchmove = function(event) {
-        // Prevent default touch behavior
         event.preventDefault();
         if (event.touches.length == 1) {
             const touch = event.touches[0];
@@ -62,9 +96,3 @@ function setupPanningAndZooming() {
     };
 }
 
-function panImage(x, y, img) {
-    const rect = img.getBoundingClientRect();
-    const posX = (x - rect.left) / rect.width;
-    const posY = (y - rect.top) / rect.height;
-    img.style.transformOrigin = `${posX * 100}% ${posY * 100}%`;
-}
