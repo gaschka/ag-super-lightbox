@@ -11,18 +11,16 @@ function openLightbox(fullSizeImgSrc) {
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
 
-    // Set initial scale right away
-    lightboxImg.style.transform = 'scale(1.6)'; // Adjust this scale as needed
 
     lightboxImg.src = '';
 
     lightboxImg.onload = function() {
+        lightbox.style.display = 'flex';
         // Delay panning to ensure the image is rendered
         setTimeout(() => {
             panImage(currentMouseX, currentMouseY, lightboxImg);
         }, 1); // Delay of 100ms, adjust as needed
     
-        lightbox.style.display = 'flex';
         setupPanningAndZooming();
     };
     
@@ -44,26 +42,31 @@ function closeLightbox() {
         lightbox.style.display = 'none';
         lightbox.classList.remove('lightbox-closing'); // Remove the class for next time
 
-        // Reset the position and scale of the image
-        lightboxImg.style.transformOrigin = '50% 50%';
-        lightboxImg.style.transform = 'scale(1.6)';
+
     }, { once: true });
 }
-
-
 function panImage(x, y, img) {
-    const rect = img.getBoundingClientRect();
-    const posX = ((x - rect.left) / rect.width) * 100;
-    const posY = ((y - rect.top) / rect.height) * 100;
+    const imgRect = img.getBoundingClientRect();
+    const containerRect = document.body.getBoundingClientRect(); // or use a specific container
 
-    // Update the transform-origin property based on the mouse position
-    img.style.transformOrigin = `${posX}% ${posY}%`;
+    // Damping factor to slow down the motion
+    const dampingFactor = 0.5; // 5 times slower than the original speed
+
+    // Calculate the amount to translate and invert the direction
+    // Adjust coordinates to the container's coordinates
+    const translateX = -((x - containerRect.left) - (imgRect.left + imgRect.width / 2)) * dampingFactor;
+    const translateY = -((y - containerRect.top) - (imgRect.top + imgRect.height / 2)) * dampingFactor;
+
+    // Apply the translation
+    img.style.transform = `translate(${translateX}px, ${translateY}px)`;
 }
+
+
 
 function setupPanningAndZooming() {
     const img = document.getElementById('lightbox-img');
 
-    img.onmousemove = function(event) {
+    document.onmousemove = function(event) {
         panImage(event.clientX, event.clientY, img);
     };
 

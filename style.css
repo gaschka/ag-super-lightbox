@@ -42,14 +42,11 @@
 }
 
 .lightbox-img {
-    max-width: 100%;
-    max-height: 100%;
-    cursor: zoom-out;
+    max-width: auto;
+    max-height: auto;
+    cursor: move;
 }
 
 .thumbnail{
-    cursor: pointer;
+    cursor: zoom-in;;
 }    
-
-
-img{margin: 2rem;}
