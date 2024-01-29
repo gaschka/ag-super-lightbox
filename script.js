@@ -1,15 +1,45 @@
 // script.js
 
-function openLightbox(fullSizeImgSrc) {
-    document.getElementById('lightbox').style.display = 'flex'; // Changed to 'flex' to enable flexbox centering
-    document.getElementById('lightbox-img').src = fullSizeImgSrc;
-    setupPanningAndZooming();
+function displayLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    lightbox.style.display = 'flex'; // Show the lightbox container
+    setupPanningAndZooming(); // Setup panning and zooming functionality
 }
+
+function openLightbox(fullSizeImgSrc) {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+
+    // Clear any previous source to ensure the load event fires
+    lightboxImg.src = '';
+
+    // Add a load event listener to the image
+    lightboxImg.onload = function() {
+        // Once the image is loaded, display the lightbox
+        lightbox.style.display = 'flex';
+        setupPanningAndZooming();
+    };
+
+    // Set the source for the image, which triggers the load event
+    lightboxImg.src = fullSizeImgSrc;
+}
+
 
 
 function closeLightbox() {
-    document.getElementById('lightbox').style.display = 'none';
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+
+    // Add closing animation class
+    lightbox.classList.add('lightbox-closing');
+
+    // Wait for the animation to finish before hiding the lightbox
+    lightbox.addEventListener('animationend', function() {
+        lightbox.style.display = 'none';
+        lightbox.classList.remove('lightbox-closing'); // Remove the class for next time
+    }, { once: true });
 }
+
 
 function setupPanningAndZooming() {
     const img = document.getElementById('lightbox-img');
