@@ -38,7 +38,7 @@ function closeLightbox() {
     }, { once: true });
 }
 
-// Global variables for current and target positions
+// Global variables for current and target positions    
 let currentPosX = 50;
 let currentPosY = 50;
 let targetPosX = 50;
@@ -71,7 +71,6 @@ function smoothUpdate(img) {
     }
 }
 
-
 function setupPanningAndZooming() {
     const img = document.getElementById('lightbox-img');
     currentPosX = 50;
@@ -79,7 +78,7 @@ function setupPanningAndZooming() {
     img.style.transformOrigin = '50% 50%';
 
     // Zoom in the image
-    img.style.transform = 'scale(2)'; // Adjust scale as needed
+    img.style.transform = 'scale(1.6)'; // Adjust scale as needed
 
     // Pan the image on mouse move
     img.onmousemove = function(event) {
