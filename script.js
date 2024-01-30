@@ -82,6 +82,61 @@ function closeLightbox() {
     }, { once: true });
 }
 
+// Add touch event listeners to the lightbox
+const lightbox = document.getElementById('lightbox');
+lightbox.addEventListener('touchstart', handleTouchStart, false);
+lightbox.addEventListener('touchmove', handleTouchMove, false);
+
+let touchStartX = 0;
+let touchStartY = 0;
+let accumulatedTranslateX = 0;
+let accumulatedTranslateY = 0;
+
+function handleTouchStart(event) {
+    touchStartX = event.touches[0].clientX;
+    touchStartY = event.touches[0].clientY;
+}
+
+function handleTouchMove(event) {
+    event.preventDefault(); // Prevent default touch behavior (e.g., scrolling)
+
+    const touchX = event.touches[0].clientX;
+    const touchY = event.touches[0].clientY;
+
+    const deltaX = touchX - touchStartX;
+    const deltaY = touchY - touchStartY;
+
+    accumulatedTranslateX += deltaX;
+    accumulatedTranslateY += deltaY;
+
+    img.style.transform = `translate(${accumulatedTranslateX}px, ${accumulatedTranslateY}px`;
+
+    // Update the initial touch coordinates for the next event
+    touchStartX = touchX;
+    touchStartY = touchY;
+}
+
+
+// Add touch event listener for double tap to close
+img.addEventListener('touchend', handleTouchEnd, false);
+
+let lastTapTime = 0;
+
+function handleTouchEnd(event) {
+    const currentTime = new Date().getTime();
+    const timeSinceLastTap = currentTime - lastTapTime;
+
+    if (timeSinceLastTap < 300) { // Adjust the time threshold as needed
+        // Double tap detected, close the lightbox
+        closeLightbox();
+    }
+
+    lastTapTime = currentTime;
+}
+
+
+
+
 // Call setupPanningAndZooming to initialize
 setupPanningAndZooming();
 
