@@ -31,15 +31,19 @@ function setupPanningAndZooming() {
 
 let currentMouseX = 0;
 let currentMouseY = 0;
+let img = document.getElementById('lightbox-img'); // Ensure this is the correct image element
 
 document.onmousemove = function(event) {
     currentMouseX = event.clientX;
     currentMouseY = event.clientY;
 
-    // Call panImage only if the lightbox is visible
-    if (document.getElementById('lightbox').style.display === 'flex') {
-        panImage(currentMouseX, currentMouseY, document.getElementById('lightbox-img'));
-    }
+    // Request to update the image position
+    requestAnimationFrame(() => {
+        // Call panImage only if the lightbox is visible
+        if (document.getElementById('lightbox').style.display === 'flex') {
+            panImage(currentMouseX, currentMouseY, img);
+        }
+    });
 };
 
 
@@ -49,24 +53,19 @@ function updateDebugInfo(mouseX, mouseY, translateX, translateY) {
 }
 
 function panImage(x, y, img) {
-    // Use the natural size of the image
-    const naturalWidth = img.naturalWidth;
-    const naturalHeight = img.naturalHeight;
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
 
-    // Assuming the image is placed directly within the body or a similarly sized container
-    const containerRect = document.body.getBoundingClientRect();
+    const translateX = (x - centerX) * -1;
+    const translateY = (y - centerY) * -1;
 
-    // Calculate the amount to translate and invert the direction
-    const translateX = -((x - containerRect.left) - (naturalWidth / 2));
-    const translateY = -((y - containerRect.top) - (naturalHeight / 2));
 
-    // Apply the damping factor if needed
-    const dampingFactor = 0.7; // Adjust this as needed
+    const dampingFactor = 0.3; // Adjust this as needed, highter value is faster
     img.style.transform = `translate(${translateX * dampingFactor}px, ${translateY * dampingFactor}px)`;
 
-    // Update debug information if you have this function implemented
     updateDebugInfo(x, y, translateX * dampingFactor, translateY * dampingFactor);
 }
+
 
 
 function closeLightbox() {
@@ -85,6 +84,8 @@ function closeLightbox() {
 
 // Call setupPanningAndZooming to initialize
 setupPanningAndZooming();
+
+
 
 // Debug information element
 const debugDiv = document.createElement('div');
