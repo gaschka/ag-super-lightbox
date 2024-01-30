@@ -94,25 +94,29 @@ function handleTouchMove(event) {
     event.preventDefault();
 
     if (event.touches.length === 1) {
+        // Check if we are transitioning from a two-finger gesture
         if (initialDistance !== null) {
-            // Transition from two-finger to one-finger gesture
-            currentX = event.touches[0].clientX;
-            currentY = event.touches[0].clientY;
+            // Adjust the accumulated translation based on the scale
+            const adjustmentScale = 1 / currentScale;
+            accumulatedTranslateX += (currentX - initialMidpoint.x) * adjustmentScale;
+            accumulatedTranslateY += (currentY - initialMidpoint.y) * adjustmentScale;
+
+            // Reset initial values for scaling
             initialDistance = null;
             initialMidpoint = null;
-        } else {
-            // Single finger touch: Pan
-            const deltaX = event.touches[0].clientX - currentX;
-            const deltaY = event.touches[0].clientY - currentY;
-
-            accumulatedTranslateX += deltaX;
-            accumulatedTranslateY += deltaY;
-
-            img.style.transform = `translate(${accumulatedTranslateX}px, ${accumulatedTranslateY}px) scale(${currentScale})`;
-
-            currentX = event.touches[0].clientX;
-            currentY = event.touches[0].clientY;
         }
+
+        // Single finger touch: Pan
+        const deltaX = event.touches[0].clientX - currentX;
+        const deltaY = event.touches[0].clientY - currentY;
+
+        accumulatedTranslateX += deltaX;
+        accumulatedTranslateY += deltaY;
+
+        img.style.transform = `translate(${accumulatedTranslateX}px, ${accumulatedTranslateY}px) scale(${currentScale})`;
+
+        currentX = event.touches[0].clientX;
+        currentY = event.touches[0].clientY;
     } else if (event.touches.length === 2) {
         // Two fingers touch: Zoom and Pan
         const touch1 = event.touches[0];
