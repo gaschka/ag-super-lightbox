@@ -33,10 +33,11 @@ function openLightbox(fullSizeImgSrc) {
 // Pan Image
 function panImage(x, y) {
     if (!isTouchDevice) {
+        const panSpeedMultiplier = 0.5;
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
-        const translateX = (x - centerX) * -0.3;
-        const translateY = (y - centerY) * -0.3;
+        const translateX = (x - centerX) * - panSpeedMultiplier;
+        const translateY = (y - centerY) * - panSpeedMultiplier;
         img.style.transform = `translate(${translateX}px, ${translateY}px)`;
     }
 }
