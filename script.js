@@ -12,10 +12,15 @@ let accumulatedTranslateX = 0;
 let accumulatedTranslateY = 0;
 let initialDistance = null;
 let initialMidpoint = null;
+let currentScale = 1; 
+
 
 // Open Lightbox
 function openLightbox(fullSizeImgSrc) {
     img.src = '';
+
+    currentScale = 1; 
+
     img.onload = function() {
         lightbox.style.display = 'flex';
 
@@ -46,6 +51,9 @@ function panImage(x, y) {
 // Close Lightbox
 function closeLightbox() {
     lightbox.classList.add('lightbox-closing');
+    accumulatedTranslateX = 0;
+    accumulatedTranslateY = 0;
+    currentScale = 1;
     lightbox.addEventListener('animationend', () => {
         lightbox.style.display = 'none';
         lightbox.classList.remove('lightbox-closing'); 
@@ -84,35 +92,48 @@ function handleTouchStart(event) {
 
 function handleTouchMove(event) {
     event.preventDefault();
+
     if (event.touches.length === 1) {
-        // Single finger touch: Pan
-        const deltaX = event.touches[0].clientX - currentX;
-        const deltaY = event.touches[0].clientY - currentY;
+        if (initialDistance !== null) {
+            // Transition from two-finger to one-finger gesture
+            currentX = event.touches[0].clientX;
+            currentY = event.touches[0].clientY;
+            initialDistance = null;
+            initialMidpoint = null;
+        } else {
+            // Single finger touch: Pan
+            const deltaX = event.touches[0].clientX - currentX;
+            const deltaY = event.touches[0].clientY - currentY;
 
-        accumulatedTranslateX += deltaX;
-        accumulatedTranslateY += deltaY;
+            accumulatedTranslateX += deltaX;
+            accumulatedTranslateY += deltaY;
 
-        img.style.transform = `translate(${accumulatedTranslateX}px, ${accumulatedTranslateY}px)`;
+            img.style.transform = `translate(${accumulatedTranslateX}px, ${accumulatedTranslateY}px) scale(${currentScale})`;
 
-        currentX = event.touches[0].clientX;
-        currentY = event.touches[0].clientY;
+            currentX = event.touches[0].clientX;
+            currentY = event.touches[0].clientY;
+        }
     } else if (event.touches.length === 2) {
         // Two fingers touch: Zoom and Pan
         const touch1 = event.touches[0];
         const touch2 = event.touches[1];
 
+        // Calculate current distance for zoom
         const currentDistance = getDistance(touch1, touch2);
         const scale = currentDistance / initialDistance;
 
-        const midpoint = getMidpoint(touch1, touch2);
-        const deltaX = midpoint.x - initialMidpoint.x;
-        const deltaY = midpoint.y - initialMidpoint.y;
+        // Calculate the current midpoint for pan
+        const currentMidpoint = getMidpoint(touch1, touch2);
+        const deltaX = (currentMidpoint.x - initialMidpoint.x) * scale;
+        const deltaY = (currentMidpoint.y - initialMidpoint.y) * scale;
 
-        img.style.transform = `translate(${accumulatedTranslateX + deltaX}px, ${accumulatedTranslateY + deltaY}px) scale(${scale})`;
+        // Apply scale and translation
+        img.style.transform = `translate(${(accumulatedTranslateX + deltaX)}px, ${(accumulatedTranslateY + deltaY)}px) scale(${scale})`;
 
-        initialMidpoint = midpoint; // Update midpoint for continuous zoom and pan
+        currentScale = scale; // Update the current scale
     }
 }
+
 
 function getDistance(touch1, touch2) {
     const dx = touch1.clientX - touch2.clientX;
