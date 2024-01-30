@@ -10,6 +10,8 @@ let currentX = 0;
 let currentY = 0;
 let accumulatedTranslateX = 0;
 let accumulatedTranslateY = 0;
+let initialDistance = null;
+let initialMidpoint = null;
 
 // Open Lightbox
 function openLightbox(fullSizeImgSrc) {
@@ -69,27 +71,58 @@ lightbox.addEventListener('touchstart', handleTouchStart, false);
 lightbox.addEventListener('touchmove', handleTouchMove, false);
 
 function handleTouchStart(event) {
-    // Save the starting touch positions
-    currentX = event.touches[0].clientX;
-    currentY = event.touches[0].clientY;
+    if (event.touches.length === 1) {
+        // Single finger touch: Initialize panning
+        currentX = event.touches[0].clientX;
+        currentY = event.touches[0].clientY;
+    } else if (event.touches.length === 2) {
+        // Two finger touch: Initialize zooming
+        initialDistance = getDistance(event.touches[0], event.touches[1]);
+        initialMidpoint = getMidpoint(event.touches[0], event.touches[1]);
+    }
 }
 
 function handleTouchMove(event) {
     event.preventDefault();
-    const touchX = event.touches[0].clientX;
-    const touchY = event.touches[0].clientY;
-
-    if (isTouchDevice) {
-        const deltaX = touchX - currentX;
-        const deltaY = touchY - currentY;
+    if (event.touches.length === 1) {
+        // Single finger touch: Pan
+        const deltaX = event.touches[0].clientX - currentX;
+        const deltaY = event.touches[0].clientY - currentY;
 
         accumulatedTranslateX += deltaX;
         accumulatedTranslateY += deltaY;
 
         img.style.transform = `translate(${accumulatedTranslateX}px, ${accumulatedTranslateY}px)`;
-    }
 
-    // Update current touch positions
-    currentX = touchX;
-    currentY = touchY;
+        currentX = event.touches[0].clientX;
+        currentY = event.touches[0].clientY;
+    } else if (event.touches.length === 2) {
+        // Two fingers touch: Zoom and Pan
+        const touch1 = event.touches[0];
+        const touch2 = event.touches[1];
+
+        const currentDistance = getDistance(touch1, touch2);
+        const scale = currentDistance / initialDistance;
+
+        const midpoint = getMidpoint(touch1, touch2);
+        const deltaX = midpoint.x - initialMidpoint.x;
+        const deltaY = midpoint.y - initialMidpoint.y;
+
+        img.style.transform = `translate(${accumulatedTranslateX + deltaX}px, ${accumulatedTranslateY + deltaY}px) scale(${scale})`;
+
+        initialMidpoint = midpoint; // Update midpoint for continuous zoom and pan
+    }
+}
+
+function getDistance(touch1, touch2) {
+    const dx = touch1.clientX - touch2.clientX;
+    const dy = touch1.clientY - touch2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+function getMidpoint(touch1, touch2) {
+    return {
+        x: (touch1.clientX + touch2.clientX) / 2,
+        y: (touch1.clientY + touch2.clientY) / 2
+    };
 }
