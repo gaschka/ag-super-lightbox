@@ -1,3 +1,8 @@
+// TODO:
+// Implement https://konvajs.org/docs/sandbox/Multi-touch_Scale_Stage.html
+// Implement https://konvajs.org/docs/sandbox/Zooming_Relative_To_Pointer.html#sidebar
+
+
 // Detect if the device is touch-capable
 let isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
